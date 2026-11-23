@@ -44,9 +44,25 @@
   let loopStarted = false;
   let lastSaveAt = 0;
   let lastNpcRepathAt = 0;
+  function stopAudioPlayback() {
+    Object.values(musicTracks).forEach(track => {
+      clearInterval(track._fadeTimer);
+      track.pause(); track.currentTime = 0; track.volume = 0;
+    });
+    audioCues.forEach(cue => { cue.pause(); cue.currentTime = 0; });
+    audioCues.clear(); activeMusic = null;
+  }
   function fadeTrack(track, target, duration = 900) {
     clearInterval(track._fadeTimer);
-    if (target > 0 && track.paused) track.play().catch(() => {});
+    if (target > 0 && track.paused) {
+      track.play().catch(() => {
+        if (activeMusic !== track || !state.soundOn) return;
+        state.soundOn = false;
+        stopAudioPlayback();
+        save(); updateHud();
+        flash('No se pudo reproducir la música. Revisa el volumen y vuelve a activar ♫.');
+      });
+    }
     const start = track.volume, began = performance.now();
     track._fadeTimer = setInterval(() => {
       const progress = Math.min(1, (performance.now() - began) / duration);
@@ -63,7 +79,7 @@
     const next = musicTracks[key];
     if (activeMusic === next && !next.paused) return;
     activeMusic = next;
-    Object.values(musicTracks).forEach(track => fadeTrack(track, track === next ? 0.22 : 0, track === next ? 1000 : 850));
+    Object.values(musicTracks).forEach(track => fadeTrack(track, track === next ? 0.36 : 0, track === next ? 1000 : 850));
   }
   function playAudioCue(file, volume = 0.3) {
     if (!state.soundOn) return;
@@ -1309,7 +1325,7 @@
   $('ending-return').addEventListener('click', () => { if (state.chapter === 1 && state.stepDone) enterWaterChapter(); else { $('ending').classList.add('hidden'); changeScene('station'); } });
   syncTitleButtons(); updateHud();
 
-  async function toggleSound() {
+  function toggleSound() {
     state.soundOn = !state.soundOn;
     if (state.soundOn) syncMusic();
     else {
@@ -1334,6 +1350,7 @@
     const key = event.key.toLowerCase();
     const typing = ['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName);
     if (typing) return;
+    if (key === 'v') { event.preventDefault(); toggleSound(); return; }
     if (dialogOpen) { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); closeDialog(); } if (/^[1-9]$/.test(key)) $('dialogue-choices').children[Number(key) - 1]?.click(); return; }
     const puzzleOpen = !$('puzzle').classList.contains('hidden') || !$('yard-puzzle').classList.contains('hidden') || !$('water-puzzle').classList.contains('hidden') || !$('allocation-puzzle').classList.contains('hidden');
     if (puzzleOpen) {
@@ -1354,7 +1371,6 @@
     if (key === 'c') showPanel('evidence');
     if (key === 'j') showPanel('journal');
     if (key === 'k') showPanel('stats');
-    if (key === 'v') toggleSound();
   });
   window.addEventListener('keyup', event => { heldKeys.delete(event.key); heldKeys.delete(event.key.toLowerCase()); });
   $('scene').addEventListener('pointerdown', (event) => {

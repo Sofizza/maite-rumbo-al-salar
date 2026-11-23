@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#17372e">
+  <title>Maite: Rumbo al Salar — Prototipo jugable</title>
+  <link rel="stylesheet" href="./game.css">
+  <link rel="stylesheet" href="./game-extra.css">
+</head>
+<body>
+  <main id="game" class="game-shell" aria-label="Maite: Rumbo al Salar">
+    <section id="title-screen" class="title-screen" aria-labelledby="game-title">
+      <div class="title-card">
+        <p class="eyebrow">Una aventura de faena, cuidado y evidencia</p>
+        <h1 id="game-title">Maite:<br><span>Rumbo al Salar</span></h1>
+        <p class="title-copy">Tu primer turno empieza con una pregunta sencilla: ¿quién está en condiciones de conducir?</p>
+        <div class="title-actions">
+          <button id="play-button" class="button button-primary">Jugar</button>
+          <button id="new-game-button" class="button button-quiet">Partida nueva</button>
+        </div>
+        <button id="credits-button" class="credits-button">Créditos y recursos</button>
+        <div class="codex-mark"><img src="./assets/third-party/codex.png" alt="Logo Codex"><span>Creado con Codex</span></div>
+      </div>
+      <p class="title-footnote">Prototipo jugable · Capítulos 1 y 2: El primer turno y La Ruta del Agua</p>
+    </section>
+
+    <section id="play-screen" class="play-screen hidden" aria-label="Escenario de juego">
+      <div id="scene" class="scene scene-camp" role="application" aria-label="Explora el campamento">
+        <div class="scene-shade"></div>
+        <header class="hud-top">
+          <div class="objective-card">
+            <span class="chapter-label">CAPÍTULO 1 DE 5 · PASO <b id="step-label">1/4</b></span>
+            <strong id="objective">Habla con la Señora Nancy</strong>
+          </div>
+          <div class="hud-actions" aria-label="Paneles">
+            <button class="hud-button" data-panel="bag" title="Mochila (M)" aria-label="Mochila, M">🎒<span>M</span></button>
+            <button class="hud-button" data-panel="evidence" title="Evidencias (C)" aria-label="Carpeta de evidencias, C">📁<span>C</span></button>
+            <button class="hud-button" data-panel="journal" title="Diario (J)" aria-label="Diario de misiones, J">📖<span>J</span></button>
+            <button class="hud-button" data-panel="stats" title="Atributos (K)" aria-label="Atributos de Maite, K">✦<span>K</span></button>
+            <button id="sound-button" class="hud-button" title="Sonido (V)" aria-label="Activar o silenciar sonido">♫<span>V</span></button>
+            <button id="menu-button" class="hud-button menu-button" title="Menú (Esc)" aria-label="Abrir menú">☰</button>
+          </div>
+        </header>
+        <div class="place-label"><span id="place-name">Campamento Horizonte</span><span>Atardecer · Turno de tarde</span></div>
+        <svg id="navigation-overlay" class="navigation-overlay hidden" viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <div id="navigation-legend" class="navigation-legend hidden" aria-live="polite">Verde: transitable · Rojo: bloqueado · B para ocultar</div>
+        <div id="hotspots" class="hotspots"></div>
+        <div id="player" class="actor actor-player" role="img" aria-label="Maite"></div>
+        <div id="toast" class="toast" aria-live="polite"></div>
+        <div class="control-hint"><kbd>WASD</kbd> / <kbd>←↑↓→</kbd> mover <span>·</span> <kbd>E</kbd> interactuar <span>·</span> clic para caminar <span>·</span> <kbd>B</kbd> zonas de paso</div>
+        <section id="dialogue" class="dialogue hidden" aria-live="polite" aria-label="Diálogo">
+          <div id="dialogue-portrait" class="dialogue-portrait" aria-hidden="true">M</div>
+          <div class="dialogue-content">
+            <div class="dialogue-heading"><strong id="dialogue-name"></strong><span id="dialogue-role"></span></div>
+            <p id="dialogue-text"></p>
+            <div id="dialogue-choices" class="dialogue-choices"></div>
+            <button id="dialogue-next" class="dialogue-next">Continuar <kbd>Enter</kbd></button>
+          </div>
+        </section>
+        <section id="panel" class="panel hidden" aria-modal="true" role="dialog" aria-labelledby="panel-title">
+          <button id="panel-close" class="panel-close" aria-label="Cerrar panel">×</button>
+          <h2 id="panel-title"></h2>
+          <div id="panel-content"></div>
+        </section>
+        <section id="puzzle" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="puzzle-title">
+          <div class="modal-card">
+            <button id="puzzle-close" class="panel-close" aria-label="Volver al terreno">×</button>
+            <p class="eyebrow">Puzle 1 · Reconstrucción del turno</p>
+            <h2 id="puzzle-title">Las horas del relevo</h2>
+            <p class="puzzle-instructions">Reconstruye la secuencia del turno. Elige una tarjeta y luego el horario que le corresponde; puedes cambiarla de lugar antes de comprobar.</p>
+            <div class="clue-box source-briefings"><strong>Documentos del turno</strong><div class="source-grid">
+              <article><b>Despacho de buses</b><span>El bus de relevo regresó a las 22:40.</span></article>
+              <article><b>Registro radial</b><span>El aviso se emitió 50 minutos antes del regreso del bus.</span></article>
+              <article><b>Planilla de colación</b><span>La pausa del equipo quedó anotada a las 21:10.</span></article>
+              <article><b>Registro de llamadas · resumen</b><span>La llamada entró media hora después de la salida marcada.</span></article>
+            </div></div>
+            <p id="timeline-selection" class="timeline-selection" aria-live="polite">Elige una tarjeta y asígnala a una hora.</p>
+            <div id="timeline-events" class="timeline-events" aria-label="Tarjetas de eventos"></div>
+            <div id="timeline-slots" class="timeline-slots" aria-label="Línea de tiempo">
+              <button type="button" class="timeline-slot" data-slot="0" aria-label="20:00, espacio para un evento"><time>20:00</time><span>Coloca aquí un evento</span></button>
+              <button type="button" class="timeline-slot" data-slot="1" aria-label="20:30, espacio para un evento"><time>20:30</time><span>Coloca aquí un evento</span></button>
+              <button type="button" class="timeline-slot" data-slot="2" aria-label="21:10, espacio para un evento"><time>21:10</time><span>Coloca aquí un evento</span></button>
+              <button type="button" class="timeline-slot" data-slot="3" aria-label="21:50, espacio para un evento"><time>21:50</time><span>Coloca aquí un evento</span></button>
+              <button type="button" class="timeline-slot" data-slot="4" aria-label="22:40, espacio para un evento"><time>22:40</time><span>Coloca aquí un evento</span></button>
+            </div>
+            <p id="puzzle-feedback" class="puzzle-feedback" aria-live="polite"></p>
+            <p id="puzzle-hint" class="puzzle-hint" aria-live="polite"></p>
+            <div class="modal-actions"><button id="use-hint" class="button button-quiet">Usar ficha de pista <span id="hint-count"></span></button><button id="check-puzzle" class="button button-primary">Comprobar secuencia</button><button id="reset-puzzle" class="button button-quiet">Reiniciar</button></div>
+          </div>
+        </section>
+        <section id="yard-puzzle" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="yard-title">
+          <div class="modal-card yard-card">
+            <button id="yard-close" class="panel-close" aria-label="Volver al terreno">×</button>
+            <p class="eyebrow">Puzle 2 · Acceso seguro</p>
+            <h2 id="yard-title">Deja libre el paso del patio</h2>
+            <p class="puzzle-instructions">Despeja el carril verde para sacar la camioneta. Mueve carros, cajas y vallas solo en la dirección que ocupan. La zona roja está aislada: ninguna pieza puede entrar ahí.</p>
+            <div class="yard-brief"><span>🟩 Carril de salida</span><span>🚧 Zona aislada: no ingresar</span><span>🗄 Gabinete fijo</span></div>
+            <div class="yard-layout"><div id="yard-grid" class="yard-grid" role="grid" aria-label="Patio de maniobras, tablero de cinco por cinco"></div><div class="yard-controls"><p id="yard-selection" aria-live="polite">Selecciona una pieza.</p><div class="yard-arrows"><button data-move="up" aria-label="Mover arriba">↑</button><button data-move="left" aria-label="Mover a la izquierda">←</button><button data-move="down" aria-label="Mover abajo">↓</button><button data-move="right" aria-label="Mover a la derecha">→</button></div><p id="yard-move-count">Movimientos: 0</p><p id="yard-feedback" class="puzzle-feedback" aria-live="polite"></p></div></div>
+            <div class="modal-actions"><button id="yard-reset" class="button button-quiet">Reiniciar</button><button id="yard-finish" class="button button-primary hidden">Registrar salida segura</button></div>
+          </div>
+        </section>
+        <section id="water-puzzle" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="water-title">
+          <div class="modal-card water-card puzzle-card"><button id="water-close" class="panel-close" aria-label="Salir a explorar">×</button>
+            <p class="eyebrow">Capítulo 2 · Puzle 1 · Dos circuitos, una alerta</p><h2 id="water-title">Tablero de trazabilidad</h2>
+            <p class="puzzle-instructions">Coloca cada registro en la ruta que le corresponde: hacia la faena o hacia el mar. La observación de la vega aún necesita seguimiento.</p>
+            <div id="water-ready" class="puzzle-ready">
+              <fieldset class="clock-choice"><legend>Ritmo de revisión</legend><label><input type="radio" name="water-clock" value="timed" checked> Con cronómetro · 1 minuto</label><label><input type="radio" name="water-clock" value="untimed"> Sin cronómetro</label></fieldset>
+              <div class="water-circuit-map" aria-label="Ruta terrestre de agua desalinizada hacia la faena y ruta marina de salmuera hacia el emisario">
+                <div class="circuit-lane circuit-land"><span class="circuit-icon">💧</span><strong>Circuito terrestre · agua desalinizada</strong><span>Planta → H-17 → Faena</span><span class="vega-marker">🌿 Vega junto al trazado; no es un tercer circuito</span></div>
+                <div class="circuit-lane circuit-sea"><span class="circuit-icon">🌊</span><strong>Circuito marino · salmuera de rechazo</strong><span>Planta → emisario costero → mar</span></div>
+              </div>
+              <p class="small-note">La vega está junto a la ruta terrestre, pero su observación no demuestra por sí sola una causa.</p>
+              <button id="water-start" class="button button-primary">Iniciar revisión</button>
+            </div>
+            <div id="water-play" class="hidden">
+              <div class="puzzle-toolbar"><div id="water-timer" class="puzzle-timer" role="timer" aria-label="Tiempo restante" aria-live="off">01:00</div><div id="water-timer-status" class="timer-status" aria-live="polite">El cronómetro comienza al iniciar.</div><button id="water-pause" class="button button-quiet">Pausar reloj</button><button id="water-clue-open" class="button button-quiet">Fuentes y pistas</button></div>
+              <div class="water-circuit-map compact" aria-label="Referencia de los circuitos terrestre y marino">
+                <div class="circuit-lane circuit-land"><span>💧 Terrestre: planta → H-17 → faena · 🌿 Vega junto al trazado</span></div>
+                <div class="circuit-lane circuit-sea"><span>🌊 Marino: planta → emisario → costa</span></div>
+              </div>
+              <div id="water-trace-cards" class="trace-card-grid" aria-label="Cuatro tarjetas de evidencia"></div>
+              <div class="puzzle-tools"><button id="water-hint" class="button button-quiet">Ver pista 1</button><p id="water-hint-text" class="hint-text" aria-live="polite"></p></div>
+              <p id="water-feedback" class="puzzle-feedback" aria-live="polite"></p>
+              <div class="modal-actions"><button id="water-reset" class="button button-quiet">Restablecer tarjetas</button><button id="water-explore" class="button button-quiet">Salir a explorar</button><button id="water-check" class="button button-primary">Comprobar clasificación</button></div>
+            </div>
+            <div id="water-expired" class="puzzle-expired hidden" role="group" aria-label="Tiempo agotado"><h3>Se agotó el tiempo de esta ronda</h3><p>No hay penalización. Puedes revisar las fuentes, reintentar o salir a explorar.</p><div class="modal-actions"><button id="water-retry" class="button button-primary">Reintentar</button><button id="water-review-expired" class="button button-quiet">Revisar pistas</button><button id="water-exit-expired" class="button button-quiet">Salir a explorar</button></div></div>
+            <div id="water-clue-drawer" class="clue-drawer hidden" role="region" aria-labelledby="water-clue-title"><h3 id="water-clue-title">Fuentes y pistas del caso</h3><ol><li>H-17 y la unión húmeda están en la tubería que lleva agua a la faena.</li><li>La vega está junto a esa tubería; su observación requiere seguimiento.</li><li>El emisario devuelve salmuera al mar y se revisa por separado.</li></ol><button id="water-clue-close" class="button button-primary">Volver al tablero</button></div>
+          </div>
+        </section>
+        <section id="allocation-puzzle" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="allocation-title">
+          <div class="modal-card water-card puzzle-card"><button id="allocation-close" class="panel-close" aria-label="Salir a explorar">×</button>
+            <p class="eyebrow">Capítulo 2 · Puzle 2 · Repartir y justificar</p><h2 id="allocation-title">Balance de la maqueta</h2>
+            <p class="puzzle-instructions">Reparte ocho fichas entre Planta, Reserva y Prueba. Es un ejercicio didáctico; no representa caudales ni instrucciones de operación.</p>
+            <div id="allocation-ready" class="puzzle-ready"><div id="allocation-ready-notes" class="source-grid water-clues"></div><fieldset class="clock-choice"><legend>Ritmo de reparto</legend><label><input type="radio" name="allocation-clock" value="timed" checked> Con cronómetro · 1 minuto</label><label><input type="radio" name="allocation-clock" value="untimed"> Sin cronómetro</label></fieldset><button id="allocation-start" class="button button-primary">Iniciar reparto</button></div>
+            <div id="allocation-play" class="hidden">
+              <div class="puzzle-toolbar"><div id="allocation-timer" class="puzzle-timer" role="timer" aria-label="Tiempo restante" aria-live="off">01:00</div><div id="allocation-timer-status" class="timer-status" aria-live="polite">El cronómetro comienza al iniciar.</div><button id="allocation-pause" class="button button-quiet">Pausar reloj</button><button id="allocation-clue-open" class="button button-quiet">Ver notas</button></div>
+              <div id="allocation-notes" class="source-grid water-clues"></div>
+              <div id="water-tokens" class="water-tokens" aria-label="Ocho fichas numeradas"></div>
+              <div class="water-bins"><button id="water-bin-plant" data-water-bin="0" class="water-bin plant-bin"><span>🏭 Planta</span><small>Recibe el doble que Prueba</small><b id="water-count-plant">0 / 8</b></button><button id="water-bin-reserve" data-water-bin="1" class="water-bin reserve-bin"><span>🌿 Reserva</span><small>Lo mismo que Prueba</small><b id="water-count-reserve">0 / 8</b></button><button id="water-bin-test" data-water-bin="2" class="water-bin test-bin"><span>🧪 Prueba</span><small>Cantidad base</small><b id="water-count-test">0 / 8</b></button></div>
+              <div class="puzzle-tools"><p id="allocation-selection" aria-live="polite">Selecciona una ficha numerada y luego una bandeja.</p><button id="allocation-return-token" class="button button-quiet" disabled>Devolver ficha seleccionada</button><button id="allocation-hint" class="button button-quiet">Ver pista 1</button><p id="allocation-hint-text" class="hint-text" aria-live="polite"></p></div>
+              <p id="allocation-feedback" class="puzzle-feedback" aria-live="polite"></p><div class="modal-actions"><button id="allocation-reset" class="button button-quiet">Devolver todas</button><button id="allocation-explore" class="button button-quiet">Salir a explorar</button><button id="allocation-check" class="button button-primary">Comprobar reparto</button></div>
+            </div>
+            <div id="allocation-expired" class="puzzle-expired hidden" role="group" aria-label="Tiempo agotado"><h3>Se agotó el tiempo de esta ronda</h3><p>No hay penalización. Puedes revisar las notas, reintentar o salir a explorar.</p><div class="modal-actions"><button id="allocation-retry" class="button button-primary">Reintentar</button><button id="allocation-review-expired" class="button button-quiet">Revisar pistas</button><button id="allocation-exit-expired" class="button button-quiet">Salir a explorar</button></div></div>
+            <div id="allocation-clue-drawer" class="clue-drawer hidden" role="region" aria-labelledby="allocation-clue-title"><h3 id="allocation-clue-title">Notas encontradas</h3><div id="allocation-clue-list" class="source-grid water-clues"></div><button id="allocation-clue-close" class="button button-primary">Volver al reparto</button></div>
+          </div>
+        </section>
+        <section id="bulletin" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="bulletin-title">
+          <div class="bulletin-card"><p class="eyebrow">Cápsula opcional · 31 segundos</p><h2 id="bulletin-title">Noticiero del Salar</h2><img src="./assets/drafts/extras/reportero-guante-turno-v1.png" alt="Títere original Guante de Turno con casco y micrófono"><p id="bulletin-line">Último minuto: la hoja sin firma fue vista por última vez en la oficina.</p><div class="bulletin-progress"><span id="bulletin-progress"></span></div><p id="bulletin-time">31 segundos</p><button id="bulletin-skip" class="button button-primary">Continuar al terreno</button></div>
+        </section>
+        <div id="ending" class="modal hidden" aria-modal="true" role="dialog" aria-labelledby="ending-title">
+          <div class="modal-card ending-card"><p class="eyebrow">Paso 1 completado</p><span id="ending-stamp" class="ending-stamp hidden">CONTINUARÁ</span><h2 id="ending-title">Un relevo a tiempo</h2><p>El turno queda registrado con una pausa acordada. Maite conserva el aviso y deja el seguimiento para el equipo entrante.</p><div id="ending-badges" class="ending-badges"></div><button id="ending-return" class="button button-primary">Continuar a Estación Vega Norte</button></div>
+        </div>
+      </div>
+    </section>
+    <div id="confirm-new" class="confirm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="confirm-title"><div class="confirm-card"><h2 id="confirm-title">¿Empezar una partida nueva?</h2><p>La partida guardada actual se reemplazará.</p><button id="cancel-new" class="button button-quiet">Cancelar</button><button id="confirm-new-button" class="button button-primary">Empezar de nuevo</button></div></div>
+  </main>
+  <script src="./navigation.js" defer></script>
+  <script src="./game.js" defer></script>
+</body>
+</html>

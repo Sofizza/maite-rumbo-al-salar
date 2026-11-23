@@ -1,0 +1,14 @@
+# Datos privados o locales recibidos para el desarrollo; no redistribuir.
+/inputs/source-photos/
+/inputs/referencias-visuales-originales.zip
+/inputs/legacy-source/
+/assets/reference/
+/reference-material/
+/saves/local/
+
+# Herramientas y salidas locales.
+/node_modules/
+/dist/
+/release-output/
+/.DS_Store
+Thumbs.db
